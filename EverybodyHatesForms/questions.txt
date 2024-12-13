@@ -1,0 +1,3 @@
+﻿User Information
+- Name of user {name:"name"}
+- Email of user {name:"email"}

@@ -1,0 +1,3 @@
+Setup
+- create table questions, columns: questions(text), path(string)
+- create answers table, columns: answers(string, not null), is_finished(bool, false), created(datetime, default now)

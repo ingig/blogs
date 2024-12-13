@@ -1,0 +1,25 @@
+Answer
+- select %answers%, id as %answer_id% from answers where is_finised=0, return 1 row
+- if %answer_id% is empty then
+    - call goal PrepareQuestions
+    - select questions as %answers% from questions where path='questions.txt', return 1 row
+    - insert into answers, answers=%answers%, write to %answer_id%
+- [llm] system: You are asking the user to answer the following questions, format them in a casual and conversational way, only ask 2-3 questions at a time. Ask only unanswered questions. selected_questions are the name properties.
+        user: %answers%
+        scheme: {text:string, selected_questions:string[]}
+        write to %result%
+- ask user %result.text%, write to %answer%
+- read system.txt, load variables, write to %system%
+- [llm] system: %system%
+        user: %answer%
+        scheme: {questions:[{text:string, name:string, answer:string}]}
+        write to %answers%
+- update answers set %answers% where %answer_id%
+- filter %answers.questions[*]% where "answer"="", write to %unAnswered%
+- if %unAnswered.Count% > 0, call Answer, else ShowResults
+
+ShowResults
+- update answers set is_finished=1 where %answer_id%
+- write out "Name: %answers.questions[0].answer%"
+- write out "Email: %answers.questions[1].answer%"
+- write out %answers%

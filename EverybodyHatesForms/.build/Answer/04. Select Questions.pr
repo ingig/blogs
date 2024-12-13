@@ -1,0 +1,75 @@
+{
+  "Action": {
+    "FunctionName": "SelectOneRow",
+    "Parameters": [
+      {
+        "Type": "string",
+        "Name": "sql",
+        "Value": "SELECT questions AS answers FROM questions WHERE path='questions.txt'"
+      }
+    ],
+    "ReturnValues": [
+      {
+        "Type": "System.String",
+        "VariableName": "%answers%"
+      }
+    ]
+  },
+  "Text": "select questions as %answers% from questions where path='questions.txt', return 1 row",
+  "Reload": false,
+  "LlmRequest": {
+    "temperature": 0.0,
+    "top_p": 0.0,
+    "frequencyPenalty": 0.0,
+    "presencePenalty": 0.0,
+    "maxLength": 4000,
+    "llmResponseType": "json",
+    "scheme": "{\n\t\"FunctionName\": string,\n\t\"Parameters\": [{\n\t\"Type\": string,\n\t\"Name\": string,\n\t\"Value\"?: object\n}],\n\t\"ReturnValues\"?: [{\n\t\"Type\": string,\n\t\"VariableName\": string\n}] = null\n}",
+    "model": "gpt-4o",
+    "promptMessage": [
+      {
+        "role": "system",
+        "content": [
+          {
+            "type": "text",
+            "text": "Map user command to either of these c# functions: \r\n\r\n## csharp function ##\r\nobject? SelectOneRow(String sql, List<object>()? SqlParameters = null)\r\n## csharp function ##\r\n\r\n## Rules ##\r\nSelectOneRow function is used when user defines to select only one row or when filtering by %id%\r\nVariable is defined with starting and ending %, e.g. %filePath%.\r\n\\% is escape from start of variable, would be used in LIKE statements, then VariableNameOrValue should keep the escaped character, e.g. the user input \\%%title%\\%, should map to VariableNameOrValue=\\%%title%\\%\r\nSqlParameters is List of ParameterInfo(string ParameterName, string VariableNameOrValue, string TypeFullName). SqlParameters @id MUST be type System.Int64\r\nTypeFullName is Full name of the type in c#, System.String, System.Double, etc.\r\n%Now% variable is type of DateTime. %Now% variable should be injected as SqlParameter \r\nReturnValue rules: \r\n- If user does not define 'write to ..' statement then Columns being returned with type if defined by user.\r\n- integer/int should always be System.Int64. \r\n\r\nIf table name is a variable, keep the variable in the sql statement\r\nYou MUST generate a valid sql statement for SQLite.\r\nYou MUST provide SqlParameters if SQL has @parameter.\r\n## Rules ##\r\n"
+          },
+          {
+            "type": "text",
+            "text": "Table name is: questions. Fix sql if it includes type."
+          },
+          {
+            "type": "text",
+            "text": "You MUST respond in JSON, scheme:\r\n {\n\t\"FunctionName\": string,\n\t\"Parameters\": [{\n\t\"Type\": string,\n\t\"Name\": string,\n\t\"Value\"?: object\n}],\n\t\"ReturnValues\"?: [{\n\t\"Type\": string,\n\t\"VariableName\": string\n}] = null\n}"
+          }
+        ]
+      },
+      {
+        "role": "assistant",
+        "content": [
+          {
+            "type": "text",
+            "text": "# examples #\r\n- select everything from tableX, write to %table% => sql: SELECT * FROM tableX, ReturnValue: %table%\r\n- select from tableB where id=%id%, into %table% => sql: SELECT * FROM tableB WHERE id=@id, ReturnValue: %table%, SqlParameters:[{ParameterName:id, VariableNameOrValue:%id%, TypeFullName:int64}],\r\n- select * from %table% WHERE %name% and value_id=%valueId%, write to %result% => sql: SELECT * FROM %table% WHERE name=@name and value_id=@valueId, ReturnValue: %result%, SqlParameters:[{ParameterName:name, VariableNameOrValue:%name%, TypeFullName:string}, {ParameterName:valueId, VariableNameOrValue:%valueId%, TypeFullName:int}] \r\n- select id, name from users, write to %user% => then ReturnValue is %user% object\r\n- select id, name from users => then ReturnValue is %id%, %name% objects\r\n- select * from addresses WHERE address like %address%% => sql SELECT * from addresses WHERE address LIKE @address, SqlParameters:[{\"ParameterName\":\"address\", \"VariableNameOrValue\":\"%address%%\", \"TypeFullName\":\"int64\"}]\r\n# examples #\r\n# ParameterInfo scheme #\r\n{\"ParameterName\" : string, \"VariableNameOrValue\" : object, \"TypeFullName\" : string, }\r\n# ParameterInfo scheme #\r\n"
+          },
+          {
+            "type": "text",
+            "text": "### questions columns ###\n[{\"name\":\"id\",\"type\":\"BIGINT\",\"isnotnull\":0,\"isprimarykey\":1},{\"name\":\"questions\",\"type\":\"TEXT\",\"isnotnull\":0,\"isprimarykey\":0},{\"name\":\"path\",\"type\":\"TEXT\",\"isnotnull\":0,\"isprimarykey\":0}]\n### questions columns ###"
+          }
+        ]
+      },
+      {
+        "role": "user",
+        "content": [
+          {
+            "type": "text",
+            "text": "select questions as %answers% from questions where path='questions.txt', return 1 row"
+          }
+        ]
+      }
+    ],
+    "type": "PLang.Modules.DbModule.Builder",
+    "caching": true,
+    "RawResponse": "```json\n{\n\t\"FunctionName\": \"SelectOneRow\",\n\t\"Parameters\": [{\n\t\t\"Type\": \"string\",\n\t\t\"Name\": \"sql\",\n\t\t\"Value\": \"SELECT questions AS answers FROM questions WHERE path='questions.txt'\"\n\t}],\n\t\"ReturnValues\": [{\n\t\t\"Type\": \"System.String\",\n\t\t\"VariableName\": \"%answers%\"\n\t}]\n}\n```"
+  },
+  "RunOnBuild": false
+}

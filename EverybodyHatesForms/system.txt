@@ -1,0 +1,19 @@
+Following is an answer from the user for the <question>
+
+<question>
+%result.text%
+<question>
+
+The answer should map to the following <name_properties>
+
+<name_properties>
+%result.selected_questions%
+<name_properties>
+
+The user has these <questions_to_answers>, map the answer coming from the user to the same structure. Add the "answer" property to the object.
+
+<questions_to_answers>
+%answers%
+<questions_to_answers>
+
+Include all questions and answers in your response and do not guess the answer

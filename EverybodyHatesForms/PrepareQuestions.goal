@@ -1,0 +1,11 @@
+PrepareQuestions
+- read questions.txt, write to %questions%
+- [llm] system: Format each property(starts with -)
+        user: %questions%
+        scheme: {questions:[{text:string, name:string}]}
+        write to %structuredQuestions%
+- select id from questions where path="questions.txt", return 1 row
+- if %id% is empty then
+    - insert into questions table, questions=%structuredQuestions%, path="questions.txt"
+- if %id% is not empty
+    - update questions set questions=%structuredQuestions% where %id%        
